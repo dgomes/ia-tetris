@@ -2,6 +2,10 @@ from game import Game
 import pygame
 import logging
 
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+
 logger = logging.getLogger("Tetris")
 logger.setLevel(logging.DEBUG)
 
@@ -15,9 +19,6 @@ def draw_window(surface, game):
 
     for x, y in game.grid:
         pygame.draw.rect(surface, (0,0,230), (x*30, y*30, 30, 30), 0)
-
-
-    print(game.current_piece)
 
     if game.current_piece:
         for x, y in game.current_piece.positions:
