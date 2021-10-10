@@ -29,6 +29,7 @@ Player = namedtuple("Player", ["name", "ws"])
 HIGHSCORE_FILE = "highscores.json"
 MAX_HIGHSCORES = 10
 
+
 class GameServer:
     """Network Game Server."""
 
@@ -38,8 +39,8 @@ class GameServer:
         self.viewers = set()
         self.current_player = None
         self.grading = grading
-        self._level = level #game level
-        self._timeout = timeout #timeout for game
+        self._level = level  # game level
+        self._timeout = timeout  # timeout for game
 
         self._highscores = []
         if os.path.isfile(HIGHSCORE_FILE):

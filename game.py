@@ -12,17 +12,17 @@ logger.setLevel(logging.DEBUG)
 
 GAME_SPEED = 10
 
-class Game:
 
+class Game:
     def __init__(self, x=10, y=30) -> None:
         logger.info("Game")
         self.dimensions = Dimensions(x, y)
         self.current_piece = None
         self.next_pieces = [deepcopy(random.choice(SHAPES)) for _ in range(3)]
 
-        self._bottom = [(i, y) for i in range(x)] #bottom
-        self._lateral = [(0, i) for i in range(y)]  #left
-        self._lateral.extend([(x-1, i) for i in range(y)])    #right
+        self._bottom = [(i, y) for i in range(x)]  # bottom
+        self._lateral = [(0, i) for i in range(y)]  # left
+        self._lateral.extend([(x - 1, i) for i in range(y)])  # right
 
         self.grid = self._bottom + self._lateral
 
@@ -37,17 +37,19 @@ class Game:
         return {
             "grid": self.grid,
             "piece": self.current_piece.positions if self.current_piece else None,
-            "next_pieces": [n.positions for n in self.next_pieces]
+            "next_pieces": [n.positions for n in self.next_pieces],
         }
 
     def clear_rows(self):
         lines = 0
 
-        for item,count in Counter(y for _,y in self.game).most_common():
+        for item, count in Counter(y for _, y in self.game).most_common():
             if count == len(self._bottom) - 2:
-                self.game = [(x,y) for (x,y) in self.game if y!=item]   #remove row
-                self.game = [(x,y+1) if y<item else (x,y) for (x,y) in self.game]   #drop blocks above
-                lines+=1
+                self.game = [(x, y) for (x, y) in self.game if y != item]  # remove row
+                self.game = [
+                    (x, y + 1) if y < item else (x, y) for (x, y) in self.game
+                ]  # drop blocks above
+                lines += 1
                 logger.debug("Clear line %s", item)
 
         self.score += lines ** 2
@@ -65,31 +67,33 @@ class Game:
             self.speed = 1
 
             logger.debug("New piece: %s", self.current_piece)
-            self.current_piece.set_pos((self.dimensions.x-self.current_piece.dimensions.x)/2, 0)
+            self.current_piece.set_pos(
+                (self.dimensions.x - self.current_piece.dimensions.x) / 2, 0
+            )
             if not self.valid(self.current_piece):
                 logger.info("GAME OVER")
                 self.running = False
-            
+
         self.current_piece.y += self.speed
 
         if self.valid(self.current_piece):
-            if self._lastkeypress == 'ss':  #TODO speed pieces
+            if self._lastkeypress == "ss":  # TODO speed pieces
                 self.speed += 1
-            elif self._lastkeypress == 'w':
+            elif self._lastkeypress == "w":
                 self.current_piece.rotate()
                 if not self.valid(self.current_piece):
                     self.current_piece.rotate(-1)
-            elif self._lastkeypress == 'a':
+            elif self._lastkeypress == "a":
                 shift = -1
-            elif self._lastkeypress == 'd':
+            elif self._lastkeypress == "d":
                 shift = +1
 
-            if self._lastkeypress in ['a','d']:
-                self.current_piece.translate(shift,0)
+            if self._lastkeypress in ["a", "d"]:
+                self.current_piece.translate(shift, 0)
                 if self.collide_lateral(self.current_piece):
                     logger.debug("Hitting the wall")
-                    self.current_piece.translate(-shift,0)            
-            
+                    self.current_piece.translate(-shift, 0)
+
         else:
             self.current_piece.y -= 1
             self.game.extend(self.current_piece.positions)
@@ -97,20 +101,23 @@ class Game:
             self.clear_rows()
 
             self.current_piece = None
-        
+
         self._lastkeypress = None
 
         return {
             "game": self.game,
             "piece": self.current_piece.positions if self.current_piece else None,
-            "next_pieces": [n.positions for n in self.next_pieces]
+            "next_pieces": [n.positions for n in self.next_pieces],
         }
-    
+
     def valid(self, piece):
-        return not any([piece_part in self.grid for piece_part in self.current_piece.positions]) and\
-            not any([piece_part in self.game for piece_part in self.current_piece.positions])
+        return not any(
+            [piece_part in self.grid for piece_part in self.current_piece.positions]
+        ) and not any(
+            [piece_part in self.game for piece_part in self.current_piece.positions]
+        )
 
     def collide_lateral(self, piece):
-        return any([piece_part in self._lateral for piece_part in self.current_piece.positions])
-
-
+        return any(
+            [piece_part in self._lateral for piece_part in self.current_piece.positions]
+        )

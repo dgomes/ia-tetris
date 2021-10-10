@@ -28,7 +28,7 @@ COLORS = {
     "orange": (255, 165, 0),
     "yellow": (255, 255, 0),
     "grey": (120, 120, 120),
-    "green": (0, 240, 0)
+    "green": (0, 240, 0),
 }
 
 
@@ -67,6 +67,7 @@ class Artifact(pygame.sprite.Sprite):
         self.image.blit(*self.sprite)
         # self.image = pygame.transform.scale(self.image, scale((1, 1)))
         self.x, self.y = pos
+
 
 class Box(Artifact):
     """Handles Box Sprites."""
@@ -113,20 +114,24 @@ async def main_loop(queue):
     boxes_group = pygame.sprite.OrderedUpdates()
 
     win = pygame.display.set_mode((600, 1000))
-    pygame.display.set_caption('Tetris')
+    pygame.display.set_caption("Tetris")
 
     logging.info("Waiting for map information from server")
     state = await queue.get()  # first state message includes map information
     logging.debug("Initial game status: %s", state)
     newgame_json = json.loads(state)
 
-    win.fill((0,0,0))
+    win.fill((0, 0, 0))
 
-    for x, y in newgame_json['grid']:
-        pygame.draw.rect(win, COLORS["blue"], (x*BLOCK_SIDE, y*BLOCK_SIDE, BLOCK_SIDE, BLOCK_SIDE), 0)
+    for x, y in newgame_json["grid"]:
+        pygame.draw.rect(
+            win,
+            COLORS["blue"],
+            (x * BLOCK_SIDE, y * BLOCK_SIDE, BLOCK_SIDE, BLOCK_SIDE),
+            0,
+        )
 
     pygame.display.update()
-
 
     while True:
         pygame.event.pump()
@@ -135,26 +140,51 @@ async def main_loop(queue):
 
         try:
             state = json.loads(queue.get_nowait())
-                        
-            win.fill((0,0,0))
-        
-            if 'highscores' in state:
+
+            win.fill((0, 0, 0))
+
+            if "highscores" in state:
                 continue
 
-            for x, y in newgame_json['grid']:
-                pygame.draw.rect(win, COLORS["blue"], (x*BLOCK_SIDE, y*BLOCK_SIDE, BLOCK_SIDE, BLOCK_SIDE), 0)
+            for x, y in newgame_json["grid"]:
+                pygame.draw.rect(
+                    win,
+                    COLORS["blue"],
+                    (x * BLOCK_SIDE, y * BLOCK_SIDE, BLOCK_SIDE, BLOCK_SIDE),
+                    0,
+                )
 
-            for x, y in state['game']:
-                pygame.draw.rect(win, COLORS["red"], (x*BLOCK_SIDE, y*BLOCK_SIDE, BLOCK_SIDE, BLOCK_SIDE), 0)
+            for x, y in state["game"]:
+                pygame.draw.rect(
+                    win,
+                    COLORS["red"],
+                    (x * BLOCK_SIDE, y * BLOCK_SIDE, BLOCK_SIDE, BLOCK_SIDE),
+                    0,
+                )
 
-            if state['piece']:
-                for x, y in state['piece']:
-                    pygame.draw.rect(win, COLORS["green"], (x*BLOCK_SIDE, y*BLOCK_SIDE, BLOCK_SIDE, BLOCK_SIDE), 0)
+            if state["piece"]:
+                for x, y in state["piece"]:
+                    pygame.draw.rect(
+                        win,
+                        COLORS["green"],
+                        (x * BLOCK_SIDE, y * BLOCK_SIDE, BLOCK_SIDE, BLOCK_SIDE),
+                        0,
+                    )
 
             yy = 0
-            for next_piece in state['next_pieces']:
+            for next_piece in state["next_pieces"]:
                 for x, y in next_piece:
-                    pygame.draw.rect(win, COLORS["pink"], ((x+11)*BLOCK_SIDE, (y+1+yy)*BLOCK_SIDE, BLOCK_SIDE, BLOCK_SIDE), 0)
+                    pygame.draw.rect(
+                        win,
+                        COLORS["pink"],
+                        (
+                            (x + 11) * BLOCK_SIDE,
+                            (y + 1 + yy) * BLOCK_SIDE,
+                            BLOCK_SIDE,
+                            BLOCK_SIDE,
+                        ),
+                        0,
+                    )
                 yy += 5
             pygame.display.update()
 
