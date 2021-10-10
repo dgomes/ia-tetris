@@ -1,12 +1,16 @@
+from asyncio.queues import Queue
 import logging
 import random
+import asyncio
 from common import Dimensions
-
+from copy import deepcopy
 from shape import SHAPES
 from collections import Counter
 
 logger = logging.getLogger("Game")
 logger.setLevel(logging.DEBUG)
+
+GAME_SPEED = 10
 
 class Game:
 
@@ -14,6 +18,7 @@ class Game:
         logger.info("Game")
         self.dimensions = Dimensions(x, y)
         self.current_piece = None
+        self.next_pieces = [deepcopy(random.choice(SHAPES)) for _ in range(3)]
 
         self._bottom = [(i, y) for i in range(x)] #bottom
         self._lateral = [(0, i) for i in range(y)]  #left
@@ -23,6 +28,17 @@ class Game:
 
         self.game = []
         self.score = 0
+        self.speed = 1
+        self._lastkeypress = None
+
+        self.running = True
+
+    def info(self):
+        return {
+            "grid": self.grid,
+            "piece": self.current_piece.positions if self.current_piece else None,
+            "next_pieces": [n.positions for n in self.next_pieces]
+        }
 
     def clear_rows(self):
         lines = 0
@@ -31,36 +47,44 @@ class Game:
             if count == len(self._bottom) - 2:
                 self.game = [(x,y) for (x,y) in self.game if y!=item]   #remove row
                 self.game = [(x,y+1) if y<item else (x,y) for (x,y) in self.game]   #drop blocks above
+                lines+=1
                 logger.debug("Clear line %s", item)
 
         self.score += lines ** 2
 
-    def loop(self, key):
+    def keypress(self, key):
+        """Update locally last key pressed."""
+        self._lastkeypress = key
+
+    async def loop(self):
+        logger.info("Loop")
+        await asyncio.sleep(1.0 / GAME_SPEED)
         if self.current_piece is None:
-            self.current_piece = random.choice(SHAPES)
+            self.current_piece = self.next_pieces.pop(0)
+            self.next_pieces.append(deepcopy(random.choice(SHAPES)))
+            self.speed = 1
+
             logger.debug("New piece: %s", self.current_piece)
             self.current_piece.set_pos((self.dimensions.x-self.current_piece.dimensions.x)/2, 0)
             if not self.valid(self.current_piece):
-                print("GAME OVER")
-                print(self.current_piece)
-                exit()
+                logger.info("GAME OVER")
+                self.running = False
             
-
-        self.current_piece.y += 1
+        self.current_piece.y += self.speed
 
         if self.valid(self.current_piece):
-            if key == 'space':
-                self.speed = 1
-            elif key == 'w':
+            if self._lastkeypress == 'ss':  #TODO speed pieces
+                self.speed += 1
+            elif self._lastkeypress == 'w':
                 self.current_piece.rotate()
                 if not self.valid(self.current_piece):
                     self.current_piece.rotate(-1)
-            elif key == 'a':
+            elif self._lastkeypress == 'a':
                 shift = -1
-            elif key == 'd':
+            elif self._lastkeypress == 'd':
                 shift = +1
 
-            if key in ['a','d']:
+            if self._lastkeypress in ['a','d']:
                 self.current_piece.translate(shift,0)
                 if self.collide_lateral(self.current_piece):
                     logger.debug("Hitting the wall")
@@ -73,6 +97,14 @@ class Game:
             self.clear_rows()
 
             self.current_piece = None
+        
+        self._lastkeypress = None
+
+        return {
+            "game": self.game,
+            "piece": self.current_piece.positions if self.current_piece else None,
+            "next_pieces": [n.positions for n in self.next_pieces]
+        }
     
     def valid(self, piece):
         return not any([piece_part in self.grid for piece_part in self.current_piece.positions]) and\
