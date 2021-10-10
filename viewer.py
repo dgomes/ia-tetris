@@ -4,8 +4,6 @@ import asyncio
 import json
 import logging
 import os
-import random
-
 import websockets
 
 import pygame
@@ -42,43 +40,6 @@ async def messages_handler(websocket_path, queue):
             queue.put_nowait(update)
 
 
-class Artifact(pygame.sprite.Sprite):
-    """Representation of moving pieces."""
-
-    def __init__(self, *args, **kw):
-        x, y = kw.pop("pos", ((kw.pop("x", 0), kw.pop("y", 0))))
-        new_pos = scale((x, y))
-        self.x, self.y = new_pos[0], new_pos[1]
-
-        self.image = pygame.Surface(CHAR_SIZE)
-        self.rect = pygame.Rect(new_pos + CHAR_SIZE)
-        self.update((x, y))
-        super().__init__(*args, **kw)
-
-    def update(self, pos=None):
-        """Updates the sprite with a new position."""
-        if not pos:
-            pos = self.x, self.y
-        else:
-            pos = scale(pos)
-        self.rect = pygame.Rect(pos + CHAR_SIZE)
-        self.image.fill((0, 0, 230))
-        self.image.blit(SPRITES, (0, 0), (*PASSAGE, *scale((1, 1))))
-        self.image.blit(*self.sprite)
-        # self.image = pygame.transform.scale(self.image, scale((1, 1)))
-        self.x, self.y = pos
-
-
-class Box(Artifact):
-    """Handles Box Sprites."""
-
-    def __init__(self, *args, **kw):
-        self.sprite = (SPRITES, (0, 0), (*BOX, *scale((1, 1))))
-        if kw.pop("stored"):
-            self.sprite = (SPRITES, (0, 0), (*BOX_ON_GOAL, *scale((1, 1))))
-        super().__init__(*args, **kw)
-
-
 def scale(pos):
     """Scale positions according to gfx."""
     x, y = pos
@@ -108,11 +69,6 @@ def draw_info(surface, text, pos, color=(0, 0, 0), background=None):
 
 async def main_loop(queue):
     """Processes events from server and display's."""
-    global SPRITES, SCREEN
-
-    main_group = pygame.sprite.LayeredUpdates()
-    boxes_group = pygame.sprite.OrderedUpdates()
-
     win = pygame.display.set_mode((600, 1000))
     pygame.display.set_caption("Tetris")
 
@@ -131,19 +87,28 @@ async def main_loop(queue):
             0,
         )
 
-    pygame.display.update()
+    game_speed = newgame_json["game_speed"]
 
     while True:
+        pygame.display.update()
+
         pygame.event.pump()
         if pygame.key.get_pressed()[pygame.K_ESCAPE]:
             asyncio.get_event_loop().stop()
 
         try:
             state = json.loads(queue.get_nowait())
+            print(state)
+
+            if "game_speed" in state:
+                game_speed = state["game_speed"]
 
             win.fill((0, 0, 0))
 
             if "highscores" in state:
+                draw_info(win, "HIGHSCORES", scale((5,5)), COLORS["white"])
+                for idx, player in enumerate(state["highscores"]):
+                    draw_info(win, f"{player[0]: <{20}} {player[1]}", scale((5,6 + idx)), COLORS["white"])
                 continue
 
             for x, y in newgame_json["grid"]:
@@ -186,10 +151,9 @@ async def main_loop(queue):
                         0,
                     )
                 yy += 5
-            pygame.display.update()
 
         except asyncio.queues.QueueEmpty:
-            await asyncio.sleep(1.0 / 10)
+            await asyncio.sleep(1.0 / game_speed)
             continue
 
 

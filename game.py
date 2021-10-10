@@ -11,7 +11,7 @@ logger = logging.getLogger("Game")
 logger.setLevel(logging.DEBUG)
 
 GAME_SPEED = 10
-
+SPEED_STEP = 10 #points
 
 class Game:
     def __init__(self, x=10, y=30) -> None:
@@ -29,6 +29,7 @@ class Game:
         self.game = []
         self.score = 0
         self.speed = 1
+        self.game_speed = 10
         self._lastkeypress = None
 
         self.running = True
@@ -38,6 +39,7 @@ class Game:
             "grid": self.grid,
             "piece": self.current_piece.positions if self.current_piece else None,
             "next_pieces": [n.positions for n in self.next_pieces],
+            "game_speed": self.game_speed
         }
 
     def clear_rows(self):
@@ -54,17 +56,18 @@ class Game:
 
         self.score += lines ** 2
 
+        self.game_speed = GAME_SPEED + self.score // SPEED_STEP
+
     def keypress(self, key):
         """Update locally last key pressed."""
         self._lastkeypress = key
 
     async def loop(self):
-        logger.info("Loop")
-        await asyncio.sleep(1.0 / GAME_SPEED)
+        logger.info("Loop - score: %s - speed: %s", self.score, self.game_speed)
+        await asyncio.sleep(1.0 / self.game_speed)
         if self.current_piece is None:
             self.current_piece = self.next_pieces.pop(0)
             self.next_pieces.append(deepcopy(random.choice(SHAPES)))
-            self.speed = 1
 
             logger.debug("New piece: %s", self.current_piece)
             self.current_piece.set_pos(
@@ -74,11 +77,13 @@ class Game:
                 logger.info("GAME OVER")
                 self.running = False
 
-        self.current_piece.y += self.speed
+        self.current_piece.y += 1
 
         if self.valid(self.current_piece):
-            if self._lastkeypress == "ss":  # TODO speed pieces
-                self.speed += 1
+            if self._lastkeypress == "s":
+                while self.valid(self.current_piece):
+                    self.current_piece.y +=1
+                self.current_piece.y -= 1
             elif self._lastkeypress == "w":
                 self.current_piece.rotate()
                 if not self.valid(self.current_piece):
@@ -108,6 +113,7 @@ class Game:
             "game": self.game,
             "piece": self.current_piece.positions if self.current_piece else None,
             "next_pieces": [n.positions for n in self.next_pieces],
+            "game_speed": self.game_speed
         }
 
     def valid(self, piece):

@@ -46,6 +46,7 @@ class GameServer:
         if os.path.isfile(HIGHSCORE_FILE):
             with open(HIGHSCORE_FILE, "r") as infile:
                 self._highscores = json.load(infile)
+                print(self._highscores)
 
     def save_highscores(self, score):
         """Update highscores, storing to file."""
@@ -57,7 +58,9 @@ class GameServer:
         )
 
         self._highscores.append((self.current_player.name, score))
-        self._highscores = sorted(self._highscores, key=lambda s: s[1])[:MAX_HIGHSCORES]
+        self._highscores = sorted(self._highscores, key=lambda s: s[1], reverse=True)[:MAX_HIGHSCORES]
+
+        print(self._highscores)
 
         with open(HIGHSCORE_FILE, "w") as outfile:
             json.dump(self._highscores, outfile)
