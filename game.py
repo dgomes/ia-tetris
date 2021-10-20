@@ -98,6 +98,8 @@ class Game:
                 if self.collide_lateral(self.current_piece):
                     logger.debug("Hitting the wall")
                     self.current_piece.translate(-shift, 0)
+                elif not self.valid(self.current_piece):
+                    self.current_piece.translate(-shift, 0) 
 
         else:
             self.current_piece.y -= 1
