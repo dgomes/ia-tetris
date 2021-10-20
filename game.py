@@ -120,12 +120,12 @@ class Game:
 
     def valid(self, piece):
         return not any(
-            [piece_part in self.grid for piece_part in self.current_piece.positions]
+            [piece_part in self.grid for piece_part in piece.positions]
         ) and not any(
-            [piece_part in self.game for piece_part in self.current_piece.positions]
+            [piece_part in self.game for piece_part in piece.positions]
         )
 
     def collide_lateral(self, piece):
         return any(
-            [piece_part in self._lateral for piece_part in self.current_piece.positions]
+            [piece_part in self._lateral for piece_part in piece.positions]
         )
