@@ -184,5 +184,7 @@ if __name__ == "__main__":
         )
     except RuntimeError as err:
         logger.error(err)
+    except KeyboardInterrupt:
+        pass
     finally:
         LOOP.stop()

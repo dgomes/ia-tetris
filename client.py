@@ -70,4 +70,7 @@ loop = asyncio.get_event_loop()
 SERVER = os.environ.get("SERVER", "localhost")
 PORT = os.environ.get("PORT", "8000")
 NAME = os.environ.get("NAME", getpass.getuser())
-loop.run_until_complete(agent_loop(f"{SERVER}:{PORT}", NAME))
+try:
+    loop.run_until_complete(agent_loop(f"{SERVER}:{PORT}", NAME))
+except KeyboardInterrupt:
+    pass
