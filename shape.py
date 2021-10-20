@@ -92,7 +92,7 @@ class Shape:
         return f"Shape({self._x},{self._y}) -> {self.positions}"
 
 
-SHAPES = [Shape(s) for s in [S, Z, I, O, J, T]]
+SHAPES = [Shape(s) for s in [S, Z, I, O, J, T, L]]
 
 if __name__ == "__main__":
     s = Shape(S)
