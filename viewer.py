@@ -7,6 +7,7 @@ import os
 import websockets
 
 import pygame
+from shape import Shape
 
 logging.basicConfig(level=logging.DEBUG)
 logger_websockets = logging.getLogger("websockets")
@@ -128,7 +129,11 @@ async def main_loop(queue):
                 )
 
             if state["piece"]:
-                for x, y in state["piece"]:
+                piece = state["piece"]
+                shape = Shape.FromLetter(piece["letter"])
+                shape.set_rotation(piece["rotation"])
+                shape.set_pos(piece["position"][0], piece["position"][1])
+                for x, y in shape.positions:
                     pygame.draw.rect(
                         win,
                         COLORS["green"],
@@ -138,7 +143,8 @@ async def main_loop(queue):
 
             yy = 0
             for next_piece in state["next_pieces"]:
-                for x, y in next_piece:
+                shape = Shape.FromLetter(next_piece)
+                for x, y in shape.positions:
                     pygame.draw.rect(
                         win,
                         COLORS["pink"],

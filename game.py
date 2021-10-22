@@ -37,8 +37,8 @@ class Game:
     def info(self):
         return {
             "grid": self.grid,
-            "piece": self.current_piece.positions if self.current_piece else None,
-            "next_pieces": [n.positions for n in self.next_pieces],
+            "piece": {"position":(self.current_piece.x, self.current_piece.y), "rotation": self.current_piece.rotation, "letter":  self.current_piece.letter} if self.current_piece else None,
+            "next_pieces": [n.letter for n in self.next_pieces],
             "game_speed": self.game_speed
         }
 
@@ -113,8 +113,8 @@ class Game:
 
         return {
             "game": self.game,
-            "piece": self.current_piece.positions if self.current_piece else None,
-            "next_pieces": [n.positions for n in self.next_pieces],
+            "piece": {"position":(self.current_piece.x, self.current_piece.y), "rotation": self.current_piece.rotation, "letter":  self.current_piece.letter} if self.current_piece else None,
+            "next_pieces": [n.letter for n in self.next_pieces],
             "game_speed": self.game_speed
         }
 
