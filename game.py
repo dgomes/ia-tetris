@@ -18,7 +18,8 @@ class Game:
         logger.info("Game")
         self.dimensions = Dimensions(x, y)
         self.current_piece = None
-        self.next_pieces = [deepcopy(random.choice(SHAPES)) for _ in range(3)]
+        self.possible_pieces = []
+        self.next_pieces = [self.next_piece() for _ in range(3)]
 
         self._bottom = [(i, y) for i in range(x)]  # bottom
         self._lateral = [(0, i) for i in range(y)]  # left
@@ -33,6 +34,15 @@ class Game:
         self._lastkeypress = None
 
         self.running = True
+
+
+    def next_piece(self):
+        if len(self.possible_pieces) == 0:
+            self.possible_pieces = deepcopy(SHAPES)
+            random.shuffle(self.possible_pieces)
+
+        return self.possible_pieces.pop()
+
 
     def info(self):
         return {
@@ -67,7 +77,7 @@ class Game:
         await asyncio.sleep(1.0 / self.game_speed)
         if self.current_piece is None:
             self.current_piece = self.next_pieces.pop(0)
-            self.next_pieces.append(deepcopy(random.choice(SHAPES)))
+            self.next_pieces.append(self.next_piece())
 
             logger.debug("New piece: %s", self.current_piece)
             self.current_piece.set_pos(
