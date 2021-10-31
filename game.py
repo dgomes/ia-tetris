@@ -19,13 +19,13 @@ class Game:
         self.dimensions = Dimensions(x, y)
         self.current_piece = None
         self.next_pieces = [deepcopy(random.choice(SHAPES)) for _ in range(3)]
-
+        
         self._bottom = [(i, y) for i in range(x)]  # bottom
         self._lateral = [(0, i) for i in range(y)]  # left
         self._lateral.extend([(x - 1, i) for i in range(y)])  # right
 
         self.grid = self._bottom + self._lateral
-
+        
         self.game = []
         self.score = 0
         self.speed = 1
@@ -44,8 +44,9 @@ class Game:
 
     def clear_rows(self):
         lines = 0
-
-        for item, count in Counter(y for _, y in self.game).most_common():
+        counter = Counter(y for _, y in self.game).most_common()
+        counter.sort() # sort to eliminate lines ordered by Y value
+        for item, count in counter:
             if count == len(self._bottom) - 2:
                 self.game = [(x, y) for (x, y) in self.game if y != item]  # remove row
                 self.game = [
