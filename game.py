@@ -47,10 +47,7 @@ class Game:
 
         for item, count in Counter(y for _, y in self.game).most_common():
             if count == len(self._bottom) - 2:
-                self.game = [(x, y) for (x, y) in self.game if y != item]  # remove row
-                self.game = [
-                    (x, y + 1) if y < item else (x, y) for (x, y) in self.game
-                ]  # drop blocks above
+                self.game = [(x, y + 1) if y < item else (x, y) for (x, y) in self.game if y != item]  # remove row and drop lines
                 lines += 1
                 logger.debug("Clear line %s", item)
 
