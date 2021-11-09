@@ -106,9 +106,14 @@ async def main_loop(queue):
             win.fill((0, 0, 0))
 
             if "highscores" in state:
-                draw_info(win, "HIGHSCORES", scale((5,5)), COLORS["white"])
+                draw_info(win, "HIGHSCORES", scale((5, 5)), COLORS["white"])
                 for idx, player in enumerate(state["highscores"]):
-                    draw_info(win, f"{player[0]: <{20}} {player[1]}", scale((5,6 + idx)), COLORS["white"])
+                    draw_info(
+                        win,
+                        f"{player[0]: <{20}} {player[1]}",
+                        scale((5, 6 + idx)),
+                        COLORS["white"],
+                    )
                 continue
 
             for x, y in newgame_json["grid"]:

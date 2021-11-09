@@ -11,7 +11,8 @@ logger = logging.getLogger("Game")
 logger.setLevel(logging.DEBUG)
 
 GAME_SPEED = 10
-SPEED_STEP = 10 #points
+SPEED_STEP = 10  # points
+
 
 class Game:
     def __init__(self, x=10, y=30) -> None:
@@ -39,7 +40,7 @@ class Game:
             "grid": self.grid,
             "piece": self.current_piece.positions if self.current_piece else None,
             "next_pieces": [n.positions for n in self.next_pieces],
-            "game_speed": self.game_speed
+            "game_speed": self.game_speed,
         }
 
     def clear_rows(self):
@@ -47,7 +48,11 @@ class Game:
 
         for item, count in Counter(y for _, y in self.game).most_common():
             if count == len(self._bottom) - 2:
-                self.game = [(x, y + 1) if y < item else (x, y) for (x, y) in self.game if y != item]  # remove row and drop lines
+                self.game = [
+                    (x, y + 1) if y < item else (x, y)
+                    for (x, y) in self.game
+                    if y != item
+                ]  # remove row and drop lines
                 lines += 1
                 logger.debug("Clear line %s", item)
 
@@ -79,7 +84,7 @@ class Game:
         if self.valid(self.current_piece):
             if self._lastkeypress == "s":
                 while self.valid(self.current_piece):
-                    self.current_piece.y +=1
+                    self.current_piece.y += 1
                 self.current_piece.y -= 1
             elif self._lastkeypress == "w":
                 self.current_piece.rotate()
@@ -96,7 +101,7 @@ class Game:
                     logger.debug("Hitting the wall")
                     self.current_piece.translate(-shift, 0)
                 elif not self.valid(self.current_piece):
-                    self.current_piece.translate(-shift, 0) 
+                    self.current_piece.translate(-shift, 0)
 
         else:
             self.current_piece.y -= 1
@@ -112,17 +117,13 @@ class Game:
             "game": self.game,
             "piece": self.current_piece.positions if self.current_piece else None,
             "next_pieces": [n.positions for n in self.next_pieces],
-            "game_speed": self.game_speed
+            "game_speed": self.game_speed,
         }
 
     def valid(self, piece):
         return not any(
             [piece_part in self.grid for piece_part in piece.positions]
-        ) and not any(
-            [piece_part in self.game for piece_part in piece.positions]
-        )
+        ) and not any([piece_part in self.game for piece_part in piece.positions])
 
     def collide_lateral(self, piece):
-        return any(
-            [piece_part in self._lateral for piece_part in piece.positions]
-        )
+        return any([piece_part in self._lateral for piece_part in piece.positions])

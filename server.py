@@ -58,7 +58,9 @@ class GameServer:
         )
 
         self._highscores.append((self.current_player.name, score))
-        self._highscores = sorted(self._highscores, key=lambda s: s[1], reverse=True)[:MAX_HIGHSCORES]
+        self._highscores = sorted(self._highscores, key=lambda s: s[1], reverse=True)[
+            :MAX_HIGHSCORES
+        ]
 
         print(self._highscores)
 
@@ -82,6 +84,8 @@ class GameServer:
         try:
             async for message in websocket:
                 data = json.loads(message)
+                if not "cmd" in data:
+                    continue
                 if data["cmd"] == "join":
                     if path == "/player":
                         logger.info("<%s> has joined", data["name"])

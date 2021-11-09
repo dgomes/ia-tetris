@@ -3,7 +3,7 @@ Projecto de Inteligência Artificial 2021 - Tetris
 
 ## How to install
 
-Make sure you are running Python 3.5 or higher
+Make sure you are running Python 3.7 or higher
 
 `$ pip install -r requirements.txt`
 
