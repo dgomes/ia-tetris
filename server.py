@@ -132,6 +132,7 @@ class GameServer:
 
                 while self.game.running:
                     state = await self.game.loop()
+                    state["player"] = self.current_player.name
 
                     state = json.dumps(state)
 
@@ -144,6 +145,8 @@ class GameServer:
 
                 game_info = self.game.info()
                 game_info["score"] = self.game.score
+                game_info["player"] = self.current_player.name
+
                 await self.send_info(game_info, highscores=True)
                 await self.current_player.ws.close()
                 self.current_player = None
