@@ -37,6 +37,7 @@ class Game:
 
     def info(self):
         return {
+            "dimensions": self.dimensions,
             "grid": self.grid,
             "piece": self.current_piece.positions if self.current_piece else None,
             "next_pieces": [n.positions for n in self.next_pieces],
@@ -46,7 +47,7 @@ class Game:
     def clear_rows(self):
         lines = 0
 
-        for item, count in Counter(y for _, y in self.game).most_common():
+        for item, count in sorted(Counter(y for _, y in self.game).most_common()):
             if count == len(self._bottom) - 2:
                 self.game = [
                     (x, y + 1) if y < item else (x, y)
@@ -118,6 +119,7 @@ class Game:
             "piece": self.current_piece.positions if self.current_piece else None,
             "next_pieces": [n.positions for n in self.next_pieces],
             "game_speed": self.game_speed,
+            "score": self.score,
         }
 
     def valid(self, piece):
