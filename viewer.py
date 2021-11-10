@@ -79,6 +79,7 @@ async def main_loop(queue):
     state = await queue.get()  # first state message includes map information
     logging.debug("Initial game status: %s", state)
     newgame_json = json.loads(state)
+    player_name = ""
 
     win.fill((0, 0, 0))
 
@@ -171,6 +172,12 @@ async def main_loop(queue):
                 )
                 yy += 6
 
+            draw_info(
+                win,
+                f"{player_name}",
+                scale((dimensions.x + 1, dimensions.y-1)),
+                COLORS["white"],
+            )
             draw_info(
                 win,
                 f"SCORE: {score}",
