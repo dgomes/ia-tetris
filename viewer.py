@@ -79,18 +79,21 @@ async def main_loop(queue):
 
     win.fill((0, 0, 0))
 
-    for x, y in newgame_json["grid"]:
-        pygame.draw.rect(
-            win,
-            COLORS["blue"],
-            (
-                x * BLOCK_SIDE / SCALE,
-                y * BLOCK_SIDE / SCALE,
-                BLOCK_SIDE / SCALE,
-                BLOCK_SIDE / SCALE,
-            ),
-            0,
-        )
+    def draw_blocks(coordinates, color, x_offset=0, y_offset=0):
+        for x, y in coordinates:
+            pygame.draw.rect(
+                win,
+                color,
+                (
+                    (x + x_offset) * BLOCK_SIDE / SCALE,
+                    (y + y_offset) * BLOCK_SIDE / SCALE,
+                    BLOCK_SIDE / SCALE,
+                    BLOCK_SIDE / SCALE,
+                ),
+                0,
+            )
+
+    draw_blocks(newgame_json["grid"], COLORS["blue"])
 
     game_speed = newgame_json["game_speed"]
 
@@ -120,20 +123,6 @@ async def main_loop(queue):
                         COLORS["white"],
                     )
                 continue
-
-            def draw_blocks(coordinates, color, x_offset=0, y_offset=0):
-                for x, y in coordinates:
-                    pygame.draw.rect(
-                        win,
-                        color,
-                        (
-                            (x + x_offset) * BLOCK_SIDE / SCALE,
-                            (y + y_offset) * BLOCK_SIDE / SCALE,
-                            BLOCK_SIDE / SCALE,
-                            BLOCK_SIDE / SCALE,
-                        ),
-                        0,
-                    )
 
             draw_blocks(newgame_json["grid"], COLORS["blue"])
 
