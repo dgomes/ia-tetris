@@ -83,7 +83,12 @@ async def main_loop(queue):
         pygame.draw.rect(
             win,
             COLORS["blue"],
-            (x * BLOCK_SIDE / SCALE, y * BLOCK_SIDE / SCALE, BLOCK_SIDE / SCALE, BLOCK_SIDE / SCALE),
+            (
+                x * BLOCK_SIDE / SCALE,
+                y * BLOCK_SIDE / SCALE,
+                BLOCK_SIDE / SCALE,
+                BLOCK_SIDE / SCALE,
+            ),
             0,
         )
 
@@ -116,45 +121,30 @@ async def main_loop(queue):
                     )
                 continue
 
-            for x, y in newgame_json["grid"]:
-                pygame.draw.rect(
-                    win,
-                    COLORS["blue"],
-                    (x * BLOCK_SIDE / SCALE, y * BLOCK_SIDE / SCALE, BLOCK_SIDE / SCALE, BLOCK_SIDE / SCALE),
-                    0,
-                )
-
-            for x, y in state["game"]:
-                pygame.draw.rect(
-                    win,
-                    COLORS["red"],
-                    (x * BLOCK_SIDE / SCALE, y * BLOCK_SIDE / SCALE, BLOCK_SIDE / SCALE, BLOCK_SIDE / SCALE),
-                    0,
-                )
-
-            if state["piece"]:
-                for x, y in state["piece"]:
+            def draw_blocks(coordinates, color, x_offset=0, y_offset=0):
+                for x, y in coordinates:
                     pygame.draw.rect(
                         win,
-                        COLORS["green"],
-                        (x * BLOCK_SIDE / SCALE, y * BLOCK_SIDE / SCALE, BLOCK_SIDE / SCALE, BLOCK_SIDE / SCALE),
-                        0,
-                    )
-
-            yy = 0
-            for next_piece in state["next_pieces"]:
-                for x, y in next_piece:
-                    pygame.draw.rect(
-                        win,
-                        COLORS["pink"],
+                        color,
                         (
-                            (x + 11) * BLOCK_SIDE / SCALE,
-                            (y + 1 + yy) * BLOCK_SIDE / SCALE,
+                            (x + x_offset) * BLOCK_SIDE / SCALE,
+                            (y + y_offset) * BLOCK_SIDE / SCALE,
                             BLOCK_SIDE / SCALE,
                             BLOCK_SIDE / SCALE,
                         ),
                         0,
                     )
+
+            draw_blocks(newgame_json["grid"], COLORS["blue"])
+
+            draw_blocks(state["game"], COLORS["red"])
+
+            if state["piece"]:
+                draw_blocks(state["piece"], COLORS["green"])
+
+            yy = 0
+            for next_piece in state["next_pieces"]:
+                draw_blocks(next_piece, COLORS["pink"], x_offset=11, y_offset=1 + yy)
                 yy += 5
 
         except asyncio.queues.QueueEmpty:
