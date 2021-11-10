@@ -69,7 +69,7 @@ def draw_info(surface, text, pos, color=(0, 0, 0), background=None):
 
 async def main_loop(queue):
     """Processes events from server and display's."""
-    win = pygame.display.set_mode((600, 1000))
+    win = pygame.display.set_mode((600 // SCALE, 1000 // SCALE))
     pygame.display.set_caption("Tetris")
 
     logging.info("Waiting for map information from server")
@@ -83,7 +83,7 @@ async def main_loop(queue):
         pygame.draw.rect(
             win,
             COLORS["blue"],
-            (x * BLOCK_SIDE, y * BLOCK_SIDE, BLOCK_SIDE, BLOCK_SIDE),
+            (x * BLOCK_SIDE / SCALE, y * BLOCK_SIDE / SCALE, BLOCK_SIDE / SCALE, BLOCK_SIDE / SCALE),
             0,
         )
 
@@ -120,7 +120,7 @@ async def main_loop(queue):
                 pygame.draw.rect(
                     win,
                     COLORS["blue"],
-                    (x * BLOCK_SIDE, y * BLOCK_SIDE, BLOCK_SIDE, BLOCK_SIDE),
+                    (x * BLOCK_SIDE / SCALE, y * BLOCK_SIDE / SCALE, BLOCK_SIDE / SCALE, BLOCK_SIDE / SCALE),
                     0,
                 )
 
@@ -128,7 +128,7 @@ async def main_loop(queue):
                 pygame.draw.rect(
                     win,
                     COLORS["red"],
-                    (x * BLOCK_SIDE, y * BLOCK_SIDE, BLOCK_SIDE, BLOCK_SIDE),
+                    (x * BLOCK_SIDE / SCALE, y * BLOCK_SIDE / SCALE, BLOCK_SIDE / SCALE, BLOCK_SIDE / SCALE),
                     0,
                 )
 
@@ -137,7 +137,7 @@ async def main_loop(queue):
                     pygame.draw.rect(
                         win,
                         COLORS["green"],
-                        (x * BLOCK_SIDE, y * BLOCK_SIDE, BLOCK_SIDE, BLOCK_SIDE),
+                        (x * BLOCK_SIDE / SCALE, y * BLOCK_SIDE / SCALE, BLOCK_SIDE / SCALE, BLOCK_SIDE / SCALE),
                         0,
                     )
 
@@ -148,10 +148,10 @@ async def main_loop(queue):
                         win,
                         COLORS["pink"],
                         (
-                            (x + 11) * BLOCK_SIDE,
-                            (y + 1 + yy) * BLOCK_SIDE,
-                            BLOCK_SIDE,
-                            BLOCK_SIDE,
+                            (x + 11) * BLOCK_SIDE / SCALE,
+                            (y + 1 + yy) * BLOCK_SIDE / SCALE,
+                            BLOCK_SIDE / SCALE,
+                            BLOCK_SIDE / SCALE,
                         ),
                         0,
                     )
