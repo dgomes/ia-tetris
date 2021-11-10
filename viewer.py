@@ -133,11 +133,9 @@ async def main_loop(queue):
                     ]
                     state["highscores"].extend(highscores)
                     state["highscores"].sort(key=lambda h: h[1], reverse=True)
-                    print(state["highscores"])
                     state["highscores"] = state["highscores"][:9]
                     state["highscores"].append([player_name, score])
                     state["highscores"].sort(key=lambda h: h[1], reverse=True)
-                    print(state["highscores"])
 
                 draw_info(win, "HIGHSCORES", scale((5, 5)), COLORS["blue"])
                 for idx, [name, sc] in enumerate(state["highscores"]):
