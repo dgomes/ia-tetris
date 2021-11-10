@@ -4,9 +4,12 @@ import asyncio
 import json
 import logging
 import os
+import requests
 import websockets
 
 import pygame
+
+from common import Dimensions
 
 logging.basicConfig(level=logging.DEBUG)
 logger_websockets = logging.getLogger("websockets")
@@ -93,6 +96,8 @@ async def main_loop(queue):
                 0,
             )
 
+    dimensions = Dimensions(*newgame_json["dimensions"])
+
     draw_blocks(newgame_json["grid"], COLORS["blue"])
 
     game_speed = newgame_json["game_speed"]
@@ -106,7 +111,10 @@ async def main_loop(queue):
 
         try:
             state = json.loads(queue.get_nowait())
-            print(state)
+            if "score" in state:
+                score = state["score"]
+            if "player" in state:
+                player_name = state["player"]
 
             if "game_speed" in state:
                 game_speed = state["game_speed"]
@@ -114,13 +122,31 @@ async def main_loop(queue):
             win.fill((0, 0, 0))
 
             if "highscores" in state:
-                draw_info(win, "HIGHSCORES", scale((5, 5)), COLORS["white"])
-                for idx, player in enumerate(state["highscores"]):
+                logging.debug("Final game status: %s", state)
+
+                if GLOBAL_HIGHSCORES:
+                    print("FUCK")
+                    highscores = [
+                        [highscore["player"], highscore["score"]]
+                        for highscore in requests.get(GLOBAL_HIGHSCORES).json()
+                    ]
+                    state["highscores"].extend(highscores)
+                    state["highscores"].sort(key=lambda h: h[1], reverse=True)
+                    print(state["highscores"])
+                    state["highscores"] = state["highscores"][:9]
+                    state["highscores"].append([player_name, score])
+                    state["highscores"].sort(key=lambda h: h[1], reverse=True)
+                    print(state["highscores"])
+
+                draw_info(win, "HIGHSCORES", scale((5, 5)), COLORS["blue"])
+                for idx, [name, sc] in enumerate(state["highscores"]):
                     draw_info(
                         win,
-                        f"{player[0]: <{20}} {player[1]}",
+                        f"{sc:>05}    {name:<24}",
                         scale((5, 6 + idx)),
-                        COLORS["white"],
+                        COLORS["orange"]
+                        if [player_name, score] == [name, sc]
+                        else COLORS["white"],
                     )
                 continue
 
@@ -131,10 +157,26 @@ async def main_loop(queue):
             if state["piece"]:
                 draw_blocks(state["piece"], COLORS["green"])
 
-            yy = 0
-            for next_piece in state["next_pieces"]:
-                draw_blocks(next_piece, COLORS["pink"], x_offset=11, y_offset=1 + yy)
-                yy += 5
+            yy = 1
+            for n, next_piece in enumerate(state["next_pieces"]):
+                draw_info(
+                    win, f"{n+1}º next:", scale((dimensions.x + 1, yy)), COLORS["white"]
+                )
+
+                draw_blocks(
+                    next_piece,
+                    COLORS["pink"],
+                    x_offset=dimensions.x + 2,
+                    y_offset=yy + 1,
+                )
+                yy += 6
+
+            draw_info(
+                win,
+                f"SCORE: {score}",
+                scale((dimensions.x + 1, dimensions.y)),
+                COLORS["white"],
+            )
 
         except asyncio.queues.QueueEmpty:
             await asyncio.sleep(1.0 / game_speed)
@@ -151,8 +193,22 @@ if __name__ == "__main__":
         "--scale", help="reduce size of window by x times", type=int, default=1
     )
     parser.add_argument("--port", help="TCP port", type=int, default=PORT)
+    parser.add_argument(
+        "--global-highscores",
+        help="Retrieve global highscores",
+        default=False,
+        action="store_true",
+    )
+    parser.add_argument(
+        "--grading-server",
+        help="url of grading server",
+        default="http://atnog-tetriscores.av.it.pt/highscores",
+    )
     arguments = parser.parse_args()
     SCALE = arguments.scale
+    GLOBAL_HIGHSCORES = (
+        arguments.grading_server if arguments.global_highscores else None
+    )
 
     LOOP = asyncio.get_event_loop()
     pygame.font.init()
