@@ -94,8 +94,9 @@ class GameServer:
                     if path == "/viewer":
                         logger.info("Viewer connected")
                         self.viewers.add(websocket)
-                        game_info = self.game.info()
-                        await websocket.send(json.dumps(game_info))
+
+                    game_info = self.game.info()
+                    await websocket.send(json.dumps(game_info))
 
                 if data["cmd"] == "key" and self.current_player.ws == websocket:
                     logger.debug((self.current_player.name, data))
