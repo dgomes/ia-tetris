@@ -145,7 +145,6 @@ class GameServer:
                 self.save_highscores(self.game.score)
 
                 game_info = self.game.info()
-                game_info["score"] = self.game.score
                 game_info["player"] = self.current_player.name
 
                 await self.send_info(game_info, highscores=True)
