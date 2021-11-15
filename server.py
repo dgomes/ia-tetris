@@ -33,8 +33,9 @@ MAX_HIGHSCORES = 10
 class GameServer:
     """Network Game Server."""
 
-    def __init__(self, level, timeout, grading=None):
-        self.game = Game()
+    def __init__(self, level, timeout, random_gen, grading=None):
+        self.game = Game(random_gen)
+        self._random = random_gen
         self.players = asyncio.Queue()
         self.viewers = set()
         self.current_player = None
@@ -122,7 +123,7 @@ class GameServer:
 
             try:
                 logger.info("Starting game for <%s>", self.current_player.name)
-                self.game = Game()
+                self.game = Game(self._random)
 
                 game_info = await self.game.loop()
                 await self.send_info(game_info)
@@ -181,9 +182,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.seed > 0:
-        random.seed(args.seed)
+        random_gen = random.Radom(args.seed)
+    else:
+        random_gen = random.Random()
 
-    g = GameServer(0, -1, args.grading_server)
+    g = GameServer(0, -1,random_gen ,args.grading_server)
 
     game_loop_task = asyncio.ensure_future(g.mainloop())
 

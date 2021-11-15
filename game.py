@@ -15,11 +15,12 @@ SPEED_STEP = 10  # points
 
 
 class Game:
-    def __init__(self, x=10, y=30) -> None:
+    def __init__(self, random_gen, x=10, y=30) -> None:
         logger.info("Game")
+        self._random = random_gen
         self.dimensions = Dimensions(x, y)
         self.current_piece = None
-        self.next_pieces = [deepcopy(random.choice(SHAPES)) for _ in range(3)]
+        self.next_pieces = [deepcopy(self._random.choice(SHAPES)) for _ in range(3)]
 
         self._bottom = [(i, y) for i in range(x)]  # bottom
         self._lateral = [(0, i) for i in range(y)]  # left
@@ -75,7 +76,7 @@ class Game:
         await asyncio.sleep(1.0 / self.game_speed)
         if self.current_piece is None:
             self.current_piece = self.next_pieces.pop(0)
-            self.next_pieces.append(deepcopy(random.choice(SHAPES)))
+            self.next_pieces.append(deepcopy(self._random.choice(SHAPES)))
 
             logger.debug("New piece: %s", self.current_piece)
             self.current_piece.set_pos(
