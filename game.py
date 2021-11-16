@@ -118,6 +118,7 @@ class Game:
 
         self._lastkeypress = None
 
+        logger.debug("Current piece: %s", self.current_piece)
         return {
             "game": self.game,
             "piece": self.current_piece.positions if self.current_piece else None,
