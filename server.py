@@ -191,5 +191,9 @@ if __name__ == "__main__":
     websocket_server = websockets.serve(g.incomming_handler, args.bind, args.port)
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(asyncio.gather(websocket_server, game_loop_task))
-    loop.close()
+    try:
+        loop.run_until_complete(asyncio.gather(websocket_server, game_loop_task))
+        loop.close()
+    except KeyboardInterrupt:
+        pass
+
